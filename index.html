@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SyncTune</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2196F3; --primary-dark-color: #1976D2; --accent-color: #FFC107;
+            --background-color: #f0f2f5; --card-color: #ffffff; --text-color: #333333;
+            --light-text-color: #757575; --divider-color: #e0e0e0; --danger-color: #F44336;
+        }
+        .theme-romantic { --primary-color: #E91E63; --primary-dark-color: #C2185B; --accent-color: #FF80AB; --background-color: #fce4ec; }
+        .theme-flirt { --primary-color: #9C27B0; --primary-dark-color: #7B1FA2; --accent-color: #E040FB; --background-color: #f3e5f5; }
+        .theme-party { --primary-color: #FF5722; --primary-dark-color: #E64A19; --accent-color: #FFC107; --background-color: #fff3e0; }
+        .theme-chill { --primary-color: #009688; --primary-dark-color: #00796B; --accent-color: #80CBC4; --background-color: #e0f2f1; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: 'Roboto', sans-serif; background: #eef2f7; color: var(--text-color);
+            display: flex; justify-content: center; align-items: center;
+            -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+        }
+        .app-container {
+            width: 100%; height: 100%; max-width: 420px; max-height: 850px; background-color: var(--card-color);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1), 0 3px 10px rgba(0,0,0,0.07);
+            display: flex; flex-direction: column; overflow: hidden; transition: background-color 0.5s;
+            border-radius: 16px;
+        }
+        @media (max-width: 450px) { .app-container { border-radius: 0; max-height: 100%; } }
+
+        .hidden { display: none !important; }
+
+        /* --- Home Screen --- */
+        #home-screen { display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 32px; background: #f7f9fc; }
+        .home-content { width: 100%; display: flex; flex-direction: column; justify-content: center; flex-grow: 1; }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .logo { font-size: 42px; font-weight: 700; color: #1a73e8; }
+        .logo span { color: #fbbc05; }
+        .tagline { color: var(--light-text-color); margin-top: 8px; font-size: 16px; }
+        .home-card { width: 100%; background-color: var(--card-color); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .home-card h3 { font-size: 18px; font-weight: 500; margin-bottom: 16px; color: #333; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s ease-in-out; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-primary { background-color: #1a73e8; color: white; margin-top: 16px; }
+        .input-field, .select-field { width: 100%; padding: 14px; border: 1px solid var(--divider-color); border-radius: 8px; font-size: 16px; background-color: #f7f7f7; }
+        .input-field::placeholder { color: #aaa; }
+        .input-field { margin-bottom: 12px; }
+        .select-field { margin-bottom: 0; appearance: none; color: #555; }
+        .select-field:focus, .input-field:focus { outline: none; border-color: #1a73e8; background-color: #fff; box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2); }
+        .btn-secondary { background-color: var(--card-color); color: #1a73e8; border: 1px solid #ddd; }
+        .home-footer { text-align: center; color: #aaa; font-size: 12px; padding-top: 20px; }
+
+        /* --- Room Screen --- */
+        #room-screen { display: flex; flex-direction: column; height: 100%; background-color: var(--background-color); transition: background 0.5s; }
+        /* BACKGROUND TEXTURES */
+        .theme-casual #room-screen { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSJ0cmFuc3BhcmVudCIvPjxjaXJjbGUgY3g9IjUiIGN5PSI1IiByPSIxIiBmaWxsPSIjZGVkZWRlIiBmaWxsLW9wYWNpdHk9IjAuNSIvPjwvc3ZnPg=='); }
+        .theme-romantic #room-screen { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSJ0cmFuc3BhcmVudCIvPjxwYXRoIGQ9Ik0gMjUgNDAgQyAyNSAzMCwgNDAgMjAsIDQwIDE1IEggMzcgQyAzNyAxNywgMjggMjUsIDI1IDMwIEMgMjIgMjUsIDEzIDE3LCAxMyAxNSBIIEExMCAxNSBDIDEwIDIwLCAyNSAzMCwgMjUgNDAgWiIgZmlsbD0iI0U5MUU2MyIgb3BhY2l0eT0iMC4xMiIvPjwvc3ZnPg=='); }
+        .theme-flirt #room-screen { background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTkgMSBMIDE3IDcgTCAxMSA5IEwgMTcgMTEgTCAxOSAxNyBMIDIxIDExIEwgMjcgOSBMIDIxIDcgTCAxOSAxeiIgZmlsbD0iI0RBMUJGQiIgb3BhY2l0eT0iMC4yIi8+PHBhdGggZD0iTTcgMjUgTCA2IDMwIEwgMSAzMSBMIDYgMzIgTCA3IDM3IEwgOCAzMiBMIDEzIDMxIEwgOCAzMCBMIDcgMjV6IiBmaWxsPSIjREEwQkZCIiBvcGFjaXR5PSIwLjE1Ii8+PC9zdmc+'); }
+        .theme-party #room-screen { background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzIiBjeT0iMyIgcj0iMiIgZmlsbD0iI0ZGM0Q3RCIgb3BhY2l0eT0iMC41Ii8+PHJlY3QgeD0iMjUiIHk9IjUiIHdpZHRoPSIzIiBoZWlnaHQ9IjEwIiByeD0iMiIgdHJhbnNmb3JtPSJyb3RhdGUoNDUgMjUgNSkiIGZpbGw9IiM0Q0FCRTAiIG9wYWNpdHk9IjAuNSIvPjxwb2x5Z29uIHBvaW50cz0iNTAsMjAgNTUsMjUgNjAsMjAiIGZpbGw9IiNGRkVCMzIiIG9wYWNpdHk9IjAuNSIvPjxjaXJjbGUgY3g9IjQ1IiBjeT0iNTAiIHI9IjMiIGZpbGw9IiM4QkMyNTQiIG9wYWNpdHk9IjAuNSIvPjxwb2x5Z29uIHBvaW50cz0iNSw1MCAxMCw1NSA1LDU1IiBmaWxsPSIjRjQ0MzM2IiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4='); }
+        .theme-chill #room-screen { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCI+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBCOEE0IiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuMSIgZD0iTSAwIDIwIEMgMjAgMTAsIDQwIDEwLCA0MCAyMCBTIDYwIDMwLCA4MCAyMCIvPjwvc3ZnPg=='); }
+        
+        .room-header { background-color: var(--primary-color); color: white; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; transition: background-color 0.5s; }
+        .room-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        #room-id-display, #user-count { font-size: 14px; font-weight: 500; }
+        #leave-room-btn { background: none; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 500; padding: 4px 8px; border-radius: 12px; background-color: rgba(0,0,0,0.1); }
+        #user-count { background-color: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 12px; }
+        .music-search-container { display: flex; gap: 8px; }
+        #music-search-input { flex-grow: 1; padding: 8px 12px; border: none; border-radius: 8px; background-color: white; color: var(--text-color); }
+        #now-playing-info { font-weight: 500; text-align: center; padding: 12px 16px 4px 16px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+        #music-controls { display: flex; justify-content: center; align-items: center; gap: 16px; padding: 8px 0; }
+        .control-btn { background: none; border: none; color: white; cursor: pointer; width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; }
+        #play-pause-btn { width: 56px; height: 56px; background-color: var(--accent-color); color: var(--text-color); box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background-color 0.5s, transform 0.2s; }
+        #search-results { background: var(--primary-dark-color); max-height: 150px; overflow-y: auto; transition: background-color 0.5s; margin-top: 12px; }
+        #search-results .result-item { padding: 8px 16px; cursor: pointer; border-radius: 4px; }
+        
+        /* Chat */
+        #chat-container { flex-grow: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; }
+        #chat-messages { display: flex; flex-direction: column; gap: 4px; padding-bottom: 8px; margin-top:auto; }
+        .message-wrapper { display: flex; flex-direction: column; max-width: 75%; animation: fadeIn 0.3s ease-in-out; margin-top: 12px; }
+        .message-wrapper.mine { align-self: flex-end; } .message-wrapper.other { align-self: flex-start; }
+        .user-name { font-size: 12px; font-weight: 500; margin-bottom: 4px; padding: 0 12px; }
+        .message-wrapper.mine .user-name { text-align: right; color: var(--light-text-color); }
+        .message-bubble { padding: 10px 14px; border-radius: 18px; word-wrap: break-word; }
+        .message-bubble.other { color: #fff; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .message-bubble.mine { background-color: var(--primary-color); color: white; border-bottom-right-radius: 4px; transition: background-color 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #chat-input-container { display: flex; padding: 12px; border-top: 1px solid var(--divider-color); background-color: var(--card-color); }
+        #message-input { flex-grow: 1; border: none; background-color: var(--background-color); padding: 14px; border-radius: 24px; margin-right: 12px; transition: background-color 0.5s; font-size: 16px; }
+        #send-btn { background-color: var(--primary-color); border: none; color: white; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; flex-shrink: 0; justify-content: center; align-items: center; transition: background-color 0.5s; }
+        
+        /* Custom Modal (Popup) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease; }
+        .modal-card { background-color: var(--card-color); padding: 24px; border-radius: 12px; text-align: center; width: 90%; max-width: 320px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transform: scale(0.95); animation: scaleUp 0.2s ease-out forwards; }
+        @keyframes scaleUp { to { transform: scale(1); } }
+        .modal-card h3 { font-size: 20px; margin-bottom: 12px; color: var(--text-color); }
+        .modal-card p { color: var(--light-text-color); margin-bottom: 24px; line-height: 1.5; }
+        .modal-buttons { display: flex; gap: 12px; justify-content: center; }
+        .modal-buttons .btn { margin-top: 0; }
+        .btn.danger { background-color: var(--danger-color) !important; }
+        .btn.danger:hover { background-color: #d32f2f !important; }
+
+    </style>
+</head>
+<body>
+    <div id="app-container" class="app-container">
+        <div id="home-screen">
+            <div class="home-content">
+                <div class="logo-container"> <div class="logo">Sync<span>Tune</span></div> <p class="tagline">Listen & Chat in Harmony</p> </div>
+                <div class="home-card"> <h3>Enter Your Name</h3> <input type="text" id="user-name-input" class="input-field" placeholder="Your Name" maxlength="20"> </div>
+                <div class="home-card">
+                    <h3>Create a New Room</h3>
+                    <select id="theme-selector" class="select-field"> <option value="casual">Casual Chat</option><option value="romantic">Romantic Chat</option> <option value="flirt">Flirt Chat</option><option value="party">Party Time</option> <option value="chill">Chill Zone</option> </select>
+                    <button id="create-room-btn" class="btn btn-primary">Create Room</button>
+                </div>
+                <div class="home-card">
+                     <h3>Join an Existing Room</h3>
+                     <input type="text" id="join-room-input" class="input-field" placeholder="Enter Room ID">
+                     <button id="join-room-btn" class="btn btn-secondary">Join Room</button>
+                </div>
+            </div>
+            <footer class="home-footer"> © 2025 - Created by Abhishek </footer>
+        </div>
+
+        <div id="room-screen" class="hidden">
+            <div class="room-header">
+                <div class="room-info"> <button id="leave-room-btn">← Leave</button> <span id="room-id-display"></span><span id="user-count"></span> </div>
+                <div class="music-search-container"> <input type="text" id="music-search-input" placeholder="Search or click for suggestions..."> </div>
+                <div id="now-playing-container">
+                    <div id="now-playing-info" class="hidden"></div>
+                    <div id="music-controls" class="hidden"> <button id="backward-btn" class="control-btn" title="Rewind 10s"></button> <button id="play-pause-btn" class="control-btn" title="Play/Pause"></button> <button id="forward-btn" class="control-btn" title="Forward 10s"></button> </div>
+                </div>
+                <div id="search-results"></div>
+            </div>
+            <div id="chat-container"><div id="chat-messages"></div></div>
+            <div id="chat-input-container"> <input type="text" id="message-input" placeholder="Type a message..."><button id="send-btn">➤</button> </div>
+        </div>
+    </div>
+
+    <!-- Modals and Player -->
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-card"> <h3 id="modal-title"></h3> <p id="modal-message"></p> <div id="modal-buttons" class="modal-buttons"></div> </div>
+    </div>
+    <div id="share-modal" class="modal-overlay hidden">
+        <div class="modal-card"><h3>Room Created!</h3><p>Share this link with your friends to join:</p> <div id="share-link" style="padding: 10px; background: #f0f2f5; border-radius: 8px; margin-bottom: 16px; word-break: break-all;"></div><div class="modal-buttons"><button id="copy-link-btn" class="btn btn-primary">Copy Link</button> <button id="close-share-modal" class="btn btn-secondary">Close</button></div> </div>
+    </div>
+    <div id="player" style="position: absolute; top: -9999px; left: -9999px;"></div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+      import { getDatabase, ref, set, onValue, push, onDisconnect, remove, update } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAQderkN3YvzzWwotCvz6uIxZ2BgG7ox7E", authDomain: "shop-ae16c.firebaseapp.com",
+        databaseURL: "https://shop-ae16c-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "shop-ae16c",
+        storageBucket: "shop-ae16c.firebasestorage.app", messagingSenderId: "166788880540", appId: "1:166788880540:web:c0e53efb96f111fe167559"
+      };
+      const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+      const YOUTUBE_API_KEY = 'AIzaSyBfXvqgbFoh0GgYTm9YiTBQaAImCc2J2yc';
+      
+      let currentRoomId, localPlayer, currentUserName, currentRoomTheme, creatorId,
+          currentUserId = 'user-' + Math.random().toString(36).substr(2, 9),
+          lastPlayerState = -1, lastSeekTs = 0, suggestionsShown = false;
+      
+      const sendSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-message-pop-alert-2354.mp3");
+      const receiveSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-positive-notification-951.mp3");
+      [sendSound.volume, receiveSound.volume] = [0.5, 0.5];
+
+      const icons = { play: `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`, pause: `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`, forward: `<svg viewBox="0 0 24 24"><path d="M13 6v12l8.5-6L13 6zM4 18l8.5-6L4 6v12z"/></svg>`, backward: `<svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6L11 18zm.5-6L20 18V6l-8.5 6z"/></svg>` };
+      const themeToSearchQuery = { romantic: "latest bollywood romantic songs", flirt: "bollywood item songs 2024", party: "bollywood party hits", chill: "bollywood lofi chill mix", casual: "top bollywood 100 songs" };
+      const userColors = ['#00897B', '#5E35B1', '#E53935', '#3949AB', '#FB8C00', '#43A047'];
+      const userColorCache = {};
+      function getUserColor(userId) { if(userColorCache[userId]) return userColorCache[userId]; let hash=0; for(let i=0;i<userId.length;i++){hash=userId.charCodeAt(i)+((hash<<5)-hash);} const color=userColors[Math.abs(hash)%userColors.length]; userColorCache[userId]=color; return color;}
+      
+      const el = {
+        app: document.getElementById('app-container'), home: document.getElementById('home-screen'), room: document.getElementById('room-screen'),
+        createBtn: document.getElementById('create-room-btn'), joinInput: document.getElementById('join-room-input'), joinBtn: document.getElementById('join-room-btn'),
+        themeSel: document.getElementById('theme-selector'), nameInput: document.getElementById('user-name-input'), idDisplay: document.getElementById('room-id-display'),
+        userCount: document.getElementById('user-count'), msgInput: document.getElementById('message-input'), sendBtn: document.getElementById('send-btn'),
+        chatBox: document.getElementById('chat-messages'), musicInput: document.getElementById('music-search-input'), resultsBox: document.getElementById('search-results'),
+        nowPlaying: document.getElementById('now-playing-info'), leaveBtn: document.getElementById('leave-room-btn'), musicControls: document.getElementById('music-controls'),
+        playPauseBtn: document.getElementById('play-pause-btn'), fwdBtn: document.getElementById('forward-btn'), bwdBtn: document.getElementById('backward-btn'),
+        customModal: document.getElementById('custom-modal'), modalTitle: document.getElementById('modal-title'), modalMsg: document.getElementById('modal-message'), modalBtns: document.getElementById('modal-buttons'),
+        shareModal: document.getElementById('share-modal'), shareLink: document.getElementById('share-link'), copyLinkBtn: document.getElementById('copy-link-btn'), closeShareBtn: document.getElementById('close-share-modal'),
+      };
+      el.bwdBtn.innerHTML = icons.backward; el.fwdBtn.innerHTML = icons.forward;
+
+      const hideModal = () => el.customModal.classList.add('hidden');
+      function showModal(title, message, buttons = [{ text: 'OK', class: 'primary', action: hideModal }]) {
+        el.modalTitle.textContent = title; el.modalMsg.textContent = message; el.modalBtns.innerHTML = '';
+        buttons.forEach(btnInfo => { const btn = document.createElement('button'); btn.className = `btn btn-${btnInfo.class}`; btn.textContent = btnInfo.text; btn.onclick = btnInfo.action; el.modalBtns.appendChild(btn); });
+        el.customModal.classList.remove('hidden');
+      }
+
+      function validateName() { currentUserName = el.nameInput.value.trim(); if (!currentUserName) { showModal('Name Required', 'Please enter your name to continue.'); return false; } return true; }
+      el.createBtn.onclick = () => { if (!validateName()) return; const newRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        set(ref(db, 'rooms/' + newRoomId), { createdAt: new Date().toISOString(), theme: el.themeSel.value, creatorId: currentUserId, nowPlaying: { videoId: '', title: 'Nothing is playing', state: -1, seekTo: null }
+        }).then(() => { showShareModal(newRoomId); joinRoom(newRoomId); });
+      };
+      el.joinBtn.onclick = () => { if (!validateName()) return; const roomId = el.joinInput.value.trim().toUpperCase(); if (roomId) onValue(ref(db, 'rooms/' + roomId), (s) => s.exists() ? joinRoom(roomId) : showModal('Error', 'Room not found! Please check the ID and try again.', [{ text: 'OK', class: 'primary', action: hideModal }]), { onlyOnce: true }); };
+      
+      el.leaveBtn.onclick = () => {
+          const count = parseInt(el.userCount.textContent.replace('👤', '').trim(), 10);
+          const isCreator = currentUserId === creatorId;
+          const leaveAction = () => { remove(ref(db, `rooms/${currentRoomId}/members/${currentUserId}`)); window.location.replace(window.location.pathname); };
+
+          if (count === 1 && isCreator) {
+              showModal('Delete Room?', 'You are the last user. Leaving will delete this room and all its messages permanently.', [
+                  { text: 'Cancel', class: 'secondary', action: hideModal },
+                  { text: 'Delete Room', class: 'danger', action: () => {
+                      hideModal(); remove(ref(db, `rooms/${currentRoomId}`)).then(leaveAction);
+                  }}
+              ]);
+          } else { leaveAction(); }
+      };
+
+      function joinRoom(roomId) {
+          currentRoomId = roomId; el.home.classList.add('hidden'); el.room.classList.remove('hidden'); el.idDisplay.textContent = `ID: ${currentRoomId}`;
+          const userRef = ref(db, `rooms/${currentRoomId}/members/${currentUserId}`);
+          set(userRef, { name: currentUserName }); onDisconnect(userRef).remove(); startListeners();
+      }
+      function showShareModal(roomId) { const link = `${window.location.origin}${window.location.pathname}?room=${roomId}`; el.shareLink.textContent = link; el.shareModal.classList.remove('hidden'); }
+      el.copyLinkBtn.onclick = () => { navigator.clipboard.writeText(el.shareLink.textContent).then(() => { el.shareModal.classList.add('hidden'); showModal('Success!', 'Room link copied to clipboard.', [{ text: 'Awesome!', class: 'primary', action: hideModal }]); }); };
+      el.closeShareBtn.onclick = () => el.shareModal.classList.add('hidden');
+      window.onload = () => { const r = new URLSearchParams(window.location.search).get('room'); if (r) { el.joinInput.value = r.toUpperCase(); } };
+
+      let chatListener = null;
+      function startListeners() {
+          onValue(ref(db, `rooms/${currentRoomId}`), (s) => { const d = s.val(); if (!d) { if (el.room.classList.contains('hidden')) return; showModal('Room Closed', 'This room no longer exists.', [{text: 'OK', action: () => window.location.replace(window.location.pathname)}]); return; } creatorId = d.creatorId; currentRoomTheme = d.theme||'casual'; el.app.className = `app-container theme-${currentRoomTheme}`; handleMusicSync(d.nowPlaying); });
+          onValue(ref(db, `rooms/${currentRoomId}/members`), (s) => { const count = s.exists() ? Object.keys(s.val()).length : 0; el.userCount.textContent = `👤 ${count}`; if (count === 0 && currentUserId === creatorId) { remove(ref(db, `rooms/${currentRoomId}`)); } });
+          
+          if(chatListener) chatListener();
+          const chatRef = ref(db, `rooms/${currentRoomId}/chat`);
+          el.chatBox.innerHTML = '';
+          chatListener = onValue(chatRef, (snapshot) => {
+              el.chatBox.innerHTML = '';
+              snapshot.forEach(childSnapshot => { displayMessage(childSnapshot.val()); });
+          });
+      }
+      
+      function handleMusicSync(np) { if (np && np.videoId && localPlayer) { el.nowPlaying.textContent = np.title; el.nowPlaying.classList.remove('hidden'); el.musicControls.classList.remove('hidden'); el.playPauseBtn.innerHTML = (np.state === 1) ? icons.pause : icons.play; if (localPlayer.getVideoData().video_id !== np.videoId) localPlayer.loadVideoById(np.videoId); if (np.state === 1 && localPlayer.getPlayerState() !== 1) localPlayer.playVideo(); else if (np.state === 2 && localPlayer.getPlayerState() !== 2) localPlayer.pauseVideo(); if (np.seekTo && np.seekTo.ts > lastSeekTs) { lastSeekTs = np.seekTo.ts; localPlayer.seekTo(np.seekTo.time, true); } } else { el.nowPlaying.classList.add('hidden'); el.musicControls.classList.add('hidden'); } }
+      const sendMessage = () => { const text = el.msgInput.value.trim(); if (text && currentRoomId) { push(ref(db, `rooms/${currentRoomId}/chat`), { text: text, senderId: currentUserId, userName: currentUserName }); sendSound.play().catch(e => {}); el.msgInput.value = ''; } };
+      el.sendBtn.onclick = sendMessage; el.msgInput.onkeyup = (e) => { if (e.key === 'Enter') sendMessage(); };
+      
+      function displayMessage(msg) {
+          const wrapper = document.createElement('div'); wrapper.className = 'message-wrapper';
+          const nameSpan = document.createElement('span'); nameSpan.className = 'user-name';
+          const bubble = document.createElement('div'); bubble.className = 'message-bubble'; bubble.textContent = msg.text;
+          if (msg.senderId === currentUserId) {
+              wrapper.classList.add('mine'); bubble.classList.add('mine'); nameSpan.textContent = "You";
+          } else {
+              wrapper.classList.add('other'); bubble.classList.add('other');
+              nameSpan.textContent = msg.userName || 'Anonymous';
+              bubble.style.backgroundColor = getUserColor(msg.senderId);
+              nameSpan.style.color = getUserColor(msg.senderId);
+              if (document.hasFocus()) receiveSound.play().catch(e => {});
+          }
+          wrapper.appendChild(nameSpan); wrapper.appendChild(bubble);
+          el.chatBox.append(wrapper);
+      }
+      
+      window.onYouTubeIframeAPIReady = () => { localPlayer = new YT.Player('player', { height: '1', width: '1', events: { 'onStateChange': onPlayerStateChange }}); };
+      function onPlayerStateChange(event) { if (event.data !== lastPlayerState && localPlayer.getVideoData().video_id) { lastPlayerState = event.data; update(ref(db, `rooms/${currentRoomId}/nowPlaying`), { state: event.data }); } }
+      const debounce = (func, delay) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => func.apply(this,a), delay); }; };
+      async function performMusicSearch(explicitQuery) { const query = explicitQuery || el.musicInput.value.trim(); if (!query) { el.resultsBox.innerHTML = ''; return; }; const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`; try { const res = await fetch(url); const data = await res.json(); displaySearchResults(data.items); } catch(error) { console.error('YouTube Search Error:', error); } }
+      el.musicInput.addEventListener('input', debounce(() => performMusicSearch(), 400));
+      el.musicInput.onfocus = () => { if (!el.musicInput.value && !suggestionsShown) { suggestionsShown = true; performMusicSearch(themeToSearchQuery[currentRoomTheme]); }};
+      function displaySearchResults(items) { el.resultsBox.innerHTML = (!items || !items.length) ? '<div class="result-item" style="cursor:default;">No results found.</div>' : ''; if(items) items.forEach(item => { const div = document.createElement('div'); div.className = 'result-item'; div.textContent = item.snippet.title; div.onclick = () => playSong(item.id.videoId, item.snippet.title); el.resultsBox.appendChild(div); }); }
+      function playSong(videoId, title) { el.resultsBox.innerHTML = ''; el.musicInput.value = ''; suggestionsShown = false; set(ref(db, `rooms/${currentRoomId}/nowPlaying`), { videoId: videoId, title: title, state: 1 }); }
+      el.playPauseBtn.onclick = () => { if (!localPlayer) return; update(ref(db, `rooms/${currentRoomId}/nowPlaying`), { state: (localPlayer.getPlayerState() === 1) ? 2 : 1 }); };
+      function seek(seconds) { if (!localPlayer) return; const newTime = Math.max(0, localPlayer.getCurrentTime() + seconds); update(ref(db, `rooms/${currentRoomId}/nowPlaying`), { seekTo: { time: newTime, ts: Date.now() } }); }
+      el.fwdBtn.onclick = () => seek(10); el.bwdBtn.onclick = () => seek(-10);
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
